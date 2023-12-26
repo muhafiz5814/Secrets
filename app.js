@@ -48,6 +48,21 @@ app.get("/login", (req, res) => {
     res.render("login")
 })
 
+app.post("/login", async (req, res) => {
+    const username = req.body.username
+    const password = req.body.password
+
+    try {
+        const user = await User.findOne({email: username})
+        if (user.password === password) {
+            res.render("secrets")
+        }
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(404)
+    }
+})
+
 app.get("/submit", (req, res) => {
     res.render("submit")
 })
