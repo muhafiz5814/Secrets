@@ -1,6 +1,7 @@
 import express from "express"
 import bodyParser from "body-parser"
 import mongoose from "mongoose"
+import encrypt from "mongoose-encryption"
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -12,12 +13,16 @@ app.set("view engine", "ejs")
 
 await mongoose.connect("mongodb+srv://muhafiz-admin:lPt9H23OyTJERuIz@secrets-cluster.l8cp30t.mongodb.net/userDB")
 
+const secretKey = process.env.ENCRYPTION_KEY || "TeriTo...Ruk"
+
 const schema = mongoose.Schema
 
 const userSchema = new schema({
     email: String,
     password: String
 })
+
+userSchema.plugin(encrypt, { secret: secretKey, encryptedFields: ['password'] })
 
 const User = new mongoose.model("User", userSchema)
 
