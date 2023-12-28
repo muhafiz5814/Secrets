@@ -2,20 +2,18 @@ import "dotenv/config"
 import express from "express"
 import bodyParser from "body-parser"
 import mongoose from "mongoose"
-import encrypt from "mongoose-encryption"
+import md5 from "md5"
 
 const app = express()
 const port = process.env.PORT || 3000
-const secretKey = process.env.ENCRYPTION_KEY || "TeriTo...Ruk"
-console.log(process.env.ENCRYPTION_KEY)
+const secretKey = process.env.ENCRYPTION_KEY
 
-console.log(process.env)
 app.use(express.static("public"))
 app.use(bodyParser.urlencoded({extended: true}))
 
 app.set("view engine", "ejs")
 
-await mongoose.connect("mongodb+srv://muhafiz-admin:lPt9H23OyTJERuIz@secrets-cluster.l8cp30t.mongodb.net/userDB")
+await mongoose.connect(process.env.CONNECTING_STRING_USERDB)
 
 const schema = mongoose.Schema
 
@@ -24,7 +22,6 @@ const userSchema = new schema({
     password: String
 })
 
-userSchema.plugin(encrypt, { secret: secretKey, encryptedFields: ['password'] })
 
 const User = new mongoose.model("User", userSchema)
 
@@ -39,7 +36,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
     const newUser = new User({
         email: req.body.username,
-        password: req.body.password
+        password: md5(req.body.password)
     })
 
     try {
@@ -57,12 +54,14 @@ app.get("/login", (req, res) => {
 
 app.post("/login", async (req, res) => {
     const username = req.body.username
-    const password = req.body.password
+    const password = md5(req.body.password)
 
     try {
         const user = await User.findOne({email: username})
         if (user.password === password) {
             res.render("secrets")
+        } else {
+            res.render("login")
         }
     } catch (error) {
         console.log(error)
