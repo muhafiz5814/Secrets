@@ -1,3 +1,4 @@
+import "dotenv/config"
 import express from "express"
 import bodyParser from "body-parser"
 import mongoose from "mongoose"
@@ -5,15 +6,16 @@ import encrypt from "mongoose-encryption"
 
 const app = express()
 const port = process.env.PORT || 3000
+const secretKey = process.env.ENCRYPTION_KEY || "TeriTo...Ruk"
+console.log(process.env.ENCRYPTION_KEY)
 
+console.log(process.env)
 app.use(express.static("public"))
 app.use(bodyParser.urlencoded({extended: true}))
 
 app.set("view engine", "ejs")
 
 await mongoose.connect("mongodb+srv://muhafiz-admin:lPt9H23OyTJERuIz@secrets-cluster.l8cp30t.mongodb.net/userDB")
-
-const secretKey = process.env.ENCRYPTION_KEY || "TeriTo...Ruk"
 
 const schema = mongoose.Schema
 
