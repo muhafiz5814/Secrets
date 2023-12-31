@@ -67,11 +67,11 @@ passport.use(new GoogleStrategy({
   }
 ))
 
-app.get('/auth/google',passport.authenticate("google", { scope: ["profile"] }));
+app.get("/auth/google",passport.authenticate("google", { scope: ["profile"] }));
 
-app.get('/auth/google/secrets', passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+app.get("/auth/google/secrets", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
     // Successful authentication, redirect to secrets.
-    res.redirect('/secrets');
+    res.redirect("/secrets");
   })
 
 app.get("/", (req, res) => {
