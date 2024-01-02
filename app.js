@@ -32,7 +32,8 @@ const schema = mongoose.Schema
 const userSchema = new schema({
     email: String,
     password: String,
-    googleId: String
+    googleId: String,
+    secret: [String]
 })
 
 userSchema.plugin(passportLocalMongoose)
@@ -88,16 +89,27 @@ app.get("/login", (req, res) => {
 
 
 app.get("/submit", (req, res) => {
-    res.render("submit")
-})
-
-app.get("/secrets", (req, res) => {
     // Below isAuthenticated() method is from passport
     if(req.isAuthenticated()) {
-        res.render("secrets")
+        res.render("submit")
     } else {
         res.redirect("/login")
     }
+})
+
+app.get("/secrets", async (req, res) => {
+    const users = await User.find({secret: {$ne: null}})
+
+    res.render("secrets", {usersWithSecret: users})
+
+})
+
+app.get('/logout', (req, res, next) => {
+    // Below logout() method is from passport
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/')
+    })
 })
 
 app.post("/register", (req, res) => {
@@ -137,12 +149,12 @@ app.post("/login", (req, res) => {
 
 })
 
-app.get('/logout', (req, res, next) => {
-    // Below logout() method is from passport
-    req.logout(function(err) {
-      if (err) { return next(err); }
-      res.redirect('/')
-    })
+app.post("/submit", async (req, res) => {
+    const secret = req.body.secret
+
+    const user = await User.findByIdAndUpdate({_id: req.user.id}, {secret: req.body.secret})
+
+    res.redirect("/secrets")
 })
 
 app.listen(port, (req, res) => {
