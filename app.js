@@ -33,7 +33,7 @@ const userSchema = new schema({
     email: String,
     password: String,
     googleId: String,
-    secret: [String]
+    secrets: [String]
 })
 
 userSchema.plugin(passportLocalMongoose)
@@ -98,9 +98,9 @@ app.get("/submit", (req, res) => {
 })
 
 app.get("/secrets", async (req, res) => {
-    const users = await User.find({secret: {$ne: null}})
+    const users = await User.find({secrets: {$ne: null}})
 
-    res.render("secrets", {usersWithSecret: users})
+    res.render("secrets", {usersWithSecrets: users})
 
 })
 
@@ -152,7 +152,7 @@ app.post("/login", (req, res) => {
 app.post("/submit", async (req, res) => {
     const secret = req.body.secret
 
-    const user = await User.findByIdAndUpdate({_id: req.user.id}, {secret: req.body.secret})
+    await User.findByIdAndUpdate({_id: req.user.id}, {$addToSet: {secrets: secret}})
 
     res.redirect("/secrets")
 })
